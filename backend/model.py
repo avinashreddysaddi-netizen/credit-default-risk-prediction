@@ -16,7 +16,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MODELS_DIR = os.path.join(BASE_DIR, "models")
 MODEL_PATH = os.path.join(MODELS_DIR, "final_credit_default_model.pkl")
 THRESH_PATH = os.path.join(MODELS_DIR, "final_credit_default_threshold.pkl")
-PREP_PATH = os.path.join(MODELS_DIR, "model_metadata.pkl")
+PREP_PATH = os.path.join(MODELS_DIR, "preprocessing.pkl")
 
 # Cached objects
 _pipeline = None
