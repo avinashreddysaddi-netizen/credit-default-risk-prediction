@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI-Based Credit Default Risk Management System</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Chart.js for simple, clean charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header class="navbar">
+    <div class="nav-container">
+      <div class="brand">
+        <div class="brand-logo">💳</div>
+        <div>
+          <h1>Credit Default Risk Management System</h1>
+          <p class="subtitle">AI-Powered Risk Prediction, What-If Simulation & Customer Governance</p>
+        </div>
+      </div>
+      <nav class="nav-tabs">
+        <button class="nav-btn active" onclick="switchTab('dashboard')">Dashboard</button>
+        <button class="nav-btn" onclick="switchTab('predict')">Predict & What-If</button>
+        <button class="nav-btn" onclick="switchTab('records')">Customer Records</button>
+        <button class="nav-btn" onclick="switchTab('alerts')">Customer Alerts <span id="alertsBadge" class="badge red">0</span></button>
+        <button class="nav-btn" onclick="switchTab('whitelist')">Whitelist</button>
+        <button class="nav-btn" onclick="switchTab('cost')">Cost Analysis</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="main-container">
+
+    <!-- TAB 1: DASHBOARD -->
+    <section id="tab-dashboard" class="tab-content active">
+      <div class="section-header">
+        <h2>Executive Risk Dashboard</h2>
+        <p>Real-time overview of customer credit evaluations stored in the system.</p>
+      </div>
+
+      <!-- 5 Metric Cards -->
+      <div class="cards-grid">
+        <div class="card stat-card">
+          <div class="stat-icon blue-bg">👥</div>
+          <div class="stat-info">
+            <span class="stat-title">Total Customers</span>
+            <span class="stat-value" id="cardTotal">0</span>
+            <span class="stat-desc">Evaluated profiles</span>
+          </div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="stat-icon green-bg">🛡️</div>
+          <div class="stat-info">
+            <span class="stat-title">Low Risk</span>
+            <span class="stat-value" id="cardLow">0</span>
+            <span class="stat-desc">Probability &lt; 25%</span>
+          </div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="stat-icon orange-bg">⚠️</div>
+          <div class="stat-info">
+            <span class="stat-title">Moderate Risk</span>
+            <span class="stat-value" id="cardModerate">0</span>
+            <span class="stat-desc">Probability 25% - 50%</span>
+          </div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="stat-icon red-bg">🚨</div>
+          <div class="stat-info">
+            <span class="stat-title">High Risk</span>
+            <span class="stat-value" id="cardHigh">0</span>
+            <span class="stat-desc">Probability &ge; 50%</span>
+          </div>
+        </div>
+
+        <div class="card stat-card">
+          <div class="stat-icon purple-bg">📋</div>
+          <div class="stat-info">
+            <span class="stat-title">Customers Reviewed</span>
+            <span class="stat-value" id="cardReviewed">0</span>
+            <span class="stat-desc">Officer oversight</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Action and Summary Grid -->
+      <div class="dashboard-grid">
+        <!-- Recent High Risk Customers -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Recent High Risk Alert Customers</h3>
+            <button class="btn btn-outline btn-sm" onclick="switchTab('records')">View All Records</button>
+          </div>
+          <div class="table-responsive">
+            <table class="simple-table" id="dashboardRecentTable">
+              <thead>
+                <tr>
+                  <th>Customer ID</th>
+                  <th>Default Probability</th>
+                  <th>Risk Category</th>
+                  <th>Review Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="dashboardRecentBody">
+                <tr><td colspan="5" class="text-center">Loading recent records...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- System Architecture & Risk Rules -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Smart Risk Classification Policy</h3>
+          </div>
+          <div class="policy-container">
+            <div class="policy-item green-border">
+              <h4><span class="indicator-dot green-dot"></span> Low Risk (Default Probability &lt; 25%)</h4>
+              <p>Customer has consistent payment habits and low debt burden. Standard billing applies.</p>
+            </div>
+            <div class="policy-item orange-border">
+              <h4><span class="indicator-dot orange-dot"></span> Moderate Risk (25% &le; Probability &lt; 50%)</h4>
+              <p>Customer shows minor delays or high utilization. Standard monthly reminder sent.</p>
+            </div>
+            <div class="policy-item red-border">
+              <h4><span class="indicator-dot red-dot"></span> High Risk (Probability &ge; 50%)</h4>
+              <p>Customer has high likelihood of default. Requires human review, risk alert, and payment outreach.</p>
+            </div>
+            <div class="info-box">
+              <small><strong>Note:</strong> Risk categories reflect probability bands and are distinct from the bank's cost-optimal binary decision threshold.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: PREDICT & WHAT-IF SIMULATOR -->
+    <section id="tab-predict" class="tab-content">
+      <div class="section-header">
+        <h2>Customer Risk Prediction & What-If Simulator</h2>
+        <p>Enter customer financial parameters to generate predictions with explainable AI factors and simulate "what-if" scenarios.</p>
+      </div>
+
+      <div class="predict-layout">
+        <!-- Left Column: Input Form -->
+        <div class="card">
+          <div class="card-header">
+            <h3>Customer Financial Inputs</h3>
+            <div class="sample-btn-group">
+              <button class="btn btn-sm btn-outline" type="button" onclick="loadSample('high')">Load High Risk Sample</button>
+              <button class="btn btn-sm btn-outline" type="button" onclick="loadSample('low')">Load Low Risk Sample</button>
+            </div>
+          </div>
+
+          <form id="predictForm" onsubmit="handlePredict(event)">
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label for="customerId">Customer ID <span class="required">*</span></label>
+                <input type="text" id="customerId" required placeholder="e.g. CUST-2001" value="CUST-2001">
+              </div>
+              <div class="form-group col-6">
+                <label for="limitBal">Credit Limit (NT$) <span class="required">*</span></label>
+                <input type="number" id="limitBal" required min="1000" step="1000" value="20000">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-4">
+                <label for="sex">Gender</label>
+                <select id="sex">
+                  <option value="2">Female</option>
+                  <option value="1">Male</option>
+                </select>
+              </div>
+              <div class="form-group col-4">
+                <label for="education">Education</label>
+                <select id="education">
+                  <option value="2">University</option>
+                  <option value="1">Graduate School</option>
+                  <option value="3">High School</option>
+                  <option value="4">Others</option>
+                </select>
+              </div>
+              <div class="form-group col-4">
+                <label for="marriage">Marital Status</label>
+                <select id="marriage">
+                  <option value="1">Married</option>
+                  <option value="2">Single</option>
+                  <option value="3">Others</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-6">
+                <label for="age">Customer Age (Years) <span class="required">*</span></label>
+                <input type="number" id="age" required min="18" max="100" value="24">
+              </div>
+              <div class="form-group col-6">
+                <label for="customThreshold">Decision Threshold</label>
+                <input type="number" id="customThreshold" min="0.05" max="0.95" step="0.01" value="0.41" title="Threshold above which customer is predicted as Default">
+                <small class="form-hint">Cost-optimal default is 0.41</small>
+              </div>
+            </div>
+
+            <h4 class="form-subheading">Repayment Status (Past 6 Months)</h4>
+            <p class="form-hint">Values: -1 = Paid on time, 0 = Revolving credit, 1 = Delay 1 month, 2 = Delay 2 months...</p>
+            <div class="form-row">
+              <div class="form-group col-2">
+                <label for="pay1">Sep (PAY_1)</label>
+                <input type="number" id="pay1" value="2" min="-2" max="8">
+              </div>
+              <div class="form-group col-2">
+                <label for="pay2">Aug (PAY_2)</label>
+                <input type="number" id="pay2" value="2" min="-2" max="8">
+              </div>
+              <div class="form-group col-2">
+                <label for="pay3">Jul (PAY_3)</label>
+                <input type="number" id="pay3" value="-1" min="-2" max="8">
+              </div>
+              <div class="form-group col-2">
+                <label for="pay4">Jun (PAY_4)</label>
+                <input type="number" id="pay4" value="-1" min="-2" max="8">
+              </div>
+              <div class="form-group col-2">
+                <label for="pay5">May (PAY_5)</label>
+                <input type="number" id="pay5" value="-2" min="-2" max="8">
+              </div>
+              <div class="form-group col-2">
+                <label for="pay6">Apr (PAY_6)</label>
+                <input type="number" id="pay6" value="-2" min="-2" max="8">
+              </div>
+            </div>
+
+            <h4 class="form-subheading">Bill Statement Amounts (NT$)</h4>
+            <div class="form-row">
+              <div class="form-group col-4">
+                <label for="bill1">Sep Bill</label>
+                <input type="number" id="bill1" value="3913">
+              </div>
+              <div class="form-group col-4">
+                <label for="bill2">Aug Bill</label>
+                <input type="number" id="bill2" value="3102">
+              </div>
+              <div class="form-group col-4">
+                <label for="bill3">Jul Bill</label>
+                <input type="number" id="bill3" value="689">
+              </div>
+            </div>
+
+            <h4 class="form-subheading">Previous Payment Amounts (NT$)</h4>
+            <div class="form-row">
+              <div class="form-group col-4">
+                <label for="payAmt1">Sep Payment</label>
+                <input type="number" id="payAmt1" value="0">
+              </div>
+              <div class="form-group col-4">
+                <label for="payAmt2">Aug Payment</label>
+                <input type="number" id="payAmt2" value="689">
+              </div>
+              <div class="form-group col-4">
+                <label for="payAmt3">Jul Payment</label>
+                <input type="number" id="payAmt3" value="0">
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="btnPredict">Predict Customer Risk</button>
+              <button type="button" class="btn btn-secondary" onclick="resetForm()">Reset</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right Column: Prediction Results & Explainable AI -->
+        <div class="predict-results-column">
+          <!-- Prediction Result Card -->
+          <div class="card" id="resultCard">
+            <div class="card-header">
+              <h3>Prediction Output</h3>
+              <span id="resultBadge" class="badge">Awaiting Input</span>
+            </div>
+
+            <div class="result-details" id="resultDetails">
+              <div class="placeholder-text">
+                Click <strong>"Predict Customer Risk"</strong> to compute the Machine Learning assessment.
+              </div>
+            </div>
+          </div>
+
+          <!-- Explainable AI (SHAP) Card -->
+          <div class="card" id="explainCard">
+            <div class="card-header">
+              <h3>Explain Why (Key Risk Drivers)</h3>
+            </div>
+            <div id="explainContent">
+              <p class="placeholder-text">Feature explanations will appear here after evaluation.</p>
+            </div>
+          </div>
+
+          <!-- What-If Simulator Card -->
+          <div class="card" id="whatIfCard">
+            <div class="card-header">
+              <h3>What-If Simulator</h3>
+            </div>
+            <p class="hint-text">Test hypothetical changes to customer inputs (e.g., paying on time, reducing bill) without altering the saved database record.</p>
+
+            <div class="whatif-controls">
+              <div class="form-row">
+                <div class="form-group col-6">
+                  <label>Hypothetical Sep Payment Status</label>
+                  <select id="simPay1">
+                    <option value="-1">Paid Duly on Time (-1)</option>
+                    <option value="0">Revolving Credit (0)</option>
+                    <option value="1">1 Month Delay (1)</option>
+                    <option value="2" selected>2 Months Delay (2)</option>
+                  </select>
+                </div>
+                <div class="form-group col-6">
+                  <label>Hypothetical Sep Payment (NT$)</label>
+                  <input type="number" id="simPayAmt1" value="0" placeholder="e.g. 3913">
+                </div>
+              </div>
+
+              <div class="form-actions">
+                <button type="button" class="btn btn-navy" onclick="runWhatIf()">Run What-If Scenario</button>
+                <button type="button" class="btn btn-outline" onclick="resetWhatIf()">Reset Scenario</button>
+              </div>
+
+              <div id="whatIfResult" class="whatif-comparison-box" style="display:none;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: CUSTOMER RECORDS -->
+    <section id="tab-records" class="tab-content">
+      <div class="section-header">
+        <h2>Saved Customer Records</h2>
+        <p>Browse, search, filter, and review evaluated credit card customers.</p>
+      </div>
+
+      <div class="card">
+        <div class="filter-bar">
+          <div class="search-box">
+            <input type="text" id="recordSearch" placeholder="Search by Customer ID..." oninput="filterRecords()">
+          </div>
+          <div class="filter-dropdown">
+            <label for="riskFilter">Filter by Risk:</label>
+            <select id="riskFilter" onchange="filterRecords()">
+              <option value="All">All Categories</option>
+              <option value="Low Risk">Low Risk</option>
+              <option value="Moderate Risk">Moderate Risk</option>
+              <option value="High Risk">High Risk</option>
+            </select>
+          </div>
+          <button class="btn btn-outline" onclick="loadCustomerRecords()">Refresh</button>
+        </div>
+
+        <div class="table-responsive">
+          <table class="simple-table" id="customerTable">
+            <thead>
+              <tr>
+                <th>Customer ID</th>
+                <th>Probability</th>
+                <th>Prediction</th>
+                <th>Risk Category</th>
+                <th>Review Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="customerTableBody">
+              <tr><td colspan="6" class="text-center">Loading records...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: CUSTOMER ALERTS -->
+    <section id="tab-alerts" class="tab-content">
+      <div class="section-header">
+        <h2>Customer Risk Alerts</h2>
+        <p>Active risk alerts for high-probability default customers requiring communication or review.</p>
+      </div>
+
+      <div class="card">
+        <div class="notice-banner">
+          <strong>Notice:</strong> Alert messages are simulated inside the application for demonstration and review purposes. No external SMS or emails are transmitted.
+        </div>
+
+        <div class="table-responsive">
+          <table class="simple-table" id="alertsTable">
+            <thead>
+              <tr>
+                <th>Customer ID</th>
+                <th>Risk Level</th>
+                <th>Probability</th>
+                <th>Alert Date</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="alertsTableBody">
+              <tr><td colspan="6" class="text-center">Loading alerts...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: WHITELIST -->
+    <section id="tab-whitelist" class="tab-content">
+      <div class="section-header">
+        <h2>Customer Whitelist Management</h2>
+        <p>Manage customers granted operational review exemptions with documented business reasons.</p>
+      </div>
+
+      <div class="card">
+        <div class="warning-banner">
+          <strong>Important Governance Rule:</strong> Whitelist means the customer has been reviewed by an officer. It does <u>not</u> mean the customer has zero risk, and it does <u>not</u> alter the underlying Machine Learning default probability.
+        </div>
+
+        <div class="table-responsive">
+          <table class="simple-table" id="whitelistTable">
+            <thead>
+              <tr>
+                <th>Customer ID</th>
+                <th>ML Risk Level</th>
+                <th>Default Probability</th>
+                <th>Documented Reason</th>
+                <th>Added Date</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="whitelistTableBody">
+              <tr><td colspan="6" class="text-center">Loading whitelist entries...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 6: COST ANALYSIS -->
+    <section id="tab-cost" class="tab-content">
+      <div class="section-header">
+        <h2>Threshold Optimization & Business Cost Analysis</h2>
+        <p>Evaluate financial trade-offs between missed defaults (False Negatives) and false alarms (False Positives).</p>
+      </div>
+
+      <div class="cost-grid">
+        <div class="card">
+          <div class="card-header">
+            <h3>Cost Matrix Formula & Assumptions</h3>
+          </div>
+          <div class="cost-explanation">
+            <p>A standard 0.50 threshold treats all errors equally. But in banking:</p>
+            <ul>
+              <li><strong>False Negative (Missed Default):</strong> Customer defaults and bank loses unpaid balance. <br><em>Assumed Cost: $500 per customer</em></li>
+              <li><strong>False Positive (False Alarm):</strong> Good customer flagged, requiring staff review / call. <br><em>Assumed Cost: $50 per customer</em></li>
+            </ul>
+            <p><strong>Total Business Cost = (False Negatives &times; $500) + (False Positives &times; $50)</strong></p>
+            <div class="highlight-box" id="optimalThreshHighlight">
+              Loading optimal threshold...
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3>Total Business Cost vs Decision Threshold</h3>
+          </div>
+          <div class="chart-container">
+            <canvas id="costChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-header">
+          <h3>Threshold Performance Table (Validation Set)</h3>
+        </div>
+        <div class="table-responsive">
+          <table class="simple-table" id="costTable">
+            <thead>
+              <tr>
+                <th>Threshold</th>
+                <th>True Positives (Caught Defaults)</th>
+                <th>False Positives (False Alarms)</th>
+                <th>True Negatives (Correct Non-Defaults)</th>
+                <th>False Negatives (Missed Defaults)</th>
+                <th>Total Business Cost ($)</th>
+              </tr>
+            </thead>
+            <tbody id="costTableBody">
+              <tr><td colspan="6" class="text-center">Loading cost data...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: Add to Whitelist -->
+  <div class="modal" id="whitelistModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Add Customer to Whitelist</h3>
+        <button class="close-btn" onclick="closeModal('whitelistModal')">&times;</button>
+      </div>
+      <form id="whitelistForm" onsubmit="handleAddToWhitelist(event)">
+        <div class="form-group">
+          <label for="wlCustomerId">Customer ID</label>
+          <input type="text" id="wlCustomerId" readonly>
+        </div>
+        <div class="form-group">
+          <label for="wlReason">Documented Business Reason <span class="required">*</span></label>
+          <select id="wlReason" required>
+            <option value="Long-standing relationship with verified collateral">Long-standing relationship with verified collateral</option>
+            <option value="Temporary liquidity delay; verified employment">Temporary liquidity delay; verified employment</option>
+            <option value="Salary account holder with regular payroll credits">Salary account holder with regular payroll credits</option>
+            <option value="Confirmed manual payment in transit">Confirmed manual payment in transit</option>
+            <option value="Other verified managerial exception">Other verified managerial exception</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="wlNotes">Officer Review Notes</label>
+          <textarea id="wlNotes" rows="3" placeholder="Enter review details..."></textarea>
+        </div>
+        <div class="warning-box">
+          <small>Whitelist status indicates managerial review. The ML model probability remains unchanged.</small>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary">Confirm Add to Whitelist</button>
+          <button type="button" class="btn btn-secondary" onclick="closeModal('whitelistModal')">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Alert Message Preview & Edit -->
+  <div class="modal" id="alertModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Customer Payment Alert Message</h3>
+        <button class="close-btn" onclick="closeModal('alertModal')">&times;</button>
+      </div>
+      <form id="alertForm" onsubmit="handleSaveAlert(event)">
+        <input type="hidden" id="alertModalId">
+        <div class="form-group">
+          <label for="alertModalCustomer">Customer ID</label>
+          <input type="text" id="alertModalCustomer" readonly>
+        </div>
+        <div class="form-group">
+          <label for="alertModalMessage">Suggested Reminder Message</label>
+          <textarea id="alertModalMessage" rows="4"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="alertModalStatus">Alert Status</label>
+          <select id="alertModalStatus">
+            <option value="Pending">Pending</option>
+            <option value="Sent">Sent (Demo)</option>
+            <option value="Resolved">Resolved</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="submit" class="btn btn-primary">Update Alert</button>
+          <button type="button" class="btn btn-outline" onclick="markAlertStatus('Sent')">Mark as Sent</button>
+          <button type="button" class="btn btn-outline" onclick="markAlertStatus('Resolved')">Mark as Resolved</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-container">
+      <p>AI-Based Credit Default Risk Prediction & Management System | Built with Python, Scikit-Learn, FastAPI & SQLite</p>
+      <p class="footer-sub">All evaluations are generated using the trained XGBoost model."</p>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
+

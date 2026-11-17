@@ -1,0 +1,21 @@
+# Python temporary files
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Secrets
+.env
+
+# Database
+backend/*.db
+
+# Private financial datasets
+data/*.xls
+data/*.xlsx
+
+# Generated customer reports
+reports/*.pdf
+
+# Editor files
+.vscode/
